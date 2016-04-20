@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>webRTC connection poc</title>
+  <link rel="stylesheet" href="styles/connection.css" />
+
+</head>
+<body>
+<!-- Based on https://github.com/webrtc/samples/tree/gh-pages/src/content/datachannel/basic
+     and https://github.com/agilityfeat/memory-webrtc-data-channel
+-->
+    <div id="container">
+      <h1>Connection POC</h1>
+
+      <div id="buttons">
+        <button id="sendButton" disabled>Send</button>
+        <button id="disconnectButton" disabled>Disconnect</button>
+      </div>
+
+      <div id="sendReceive">
+        <div id="send">
+          <h2>Send</h2>
+          <textarea id="dataChannelSend" disabled placeholder="Press Start, enter some text, then press Send."></textarea>
+        </div>
+        <div id="receive">
+          <h2>Receive</h2>
+          <div id="dataChannelReceive"></div>
+        </div>
+      </div>
+
+    </div>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="scripts/connection.js"></script>
+
+</body>
+</html>

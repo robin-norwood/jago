@@ -28,6 +28,8 @@ Using the "jGoboard" library from http://jgoboard.com
     . Handle invalid moves/cheating attempts
     . Heartbeat/notice disconnects
     . Handle reconnects
+  . M1: Setup test framework
+  . M1: Setup "production" stun server
 
 
 ## Milestones
