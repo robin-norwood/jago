@@ -27,16 +27,26 @@ app.get('/', function(req, res){
 
 // END FIXME
 
-
 app.listen(process.env.PORT || PORT);
+
+// FIXME: sucks that we're keeping state for the room here.
+// Find a better way, or at least support multiple rooms without too much overhead.
+var roomClaimed = false;
 
 app.io.route('client_ready', function(req) {
 	console.log("Got client ready for room: " + req.data.signal_room);
 	req.io.join(req.data.signal_room); // Join the room and wait for more signals
+	if (! roomClaimed) {
+		console.log("Sending owner signal");
+		req.io.emit('signaling_message', {type: 'owner',
+																			message: 'You own the room'})
+		roomClaimed = true;
+	}
 })
 
 app.io.route('signal', function(req) {
-	//Note the use of req here for broadcasting so only the sender doesn't receive their own messages
+	// Note the use of req instead of app here for broadcasting so
+	// only the sender doesn't receive their own messages
 	console.log("Got signal from room: " + req.data.room);
 	console.log("  type: " + req.data.type);
 	req.io.room(req.data.room).broadcast('signaling_message', {
