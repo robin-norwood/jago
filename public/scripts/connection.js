@@ -53,7 +53,6 @@ dataChannelSend.addEventListener('keypress', function(event) {
   }
 });
 
-
 var signalRoom = "chatroom";
 
 // Browser compatability for webRTC
@@ -204,12 +203,14 @@ function onDataChannelClose() {
 
 function sendData() {
   status("Sending...");
-  var data = dataChannelSend.value;
+
+  var data = JSON.stringify({chat: { text: dataChannelSend.value }});
+
   dataChannel.send(data);
-  addChatMessage("self", data);
+  addChatMessage("self", dataChannelSend.value);
+  trace('Sent Data: ' + dataChannelSend.value);
   dataChannelSend.value = '';
 
-  trace('Sent Data: ' + data);
   status("Ready");
 }
 
@@ -257,8 +258,11 @@ function addChatMessage(who, message) {
 
 function onReceiveMessage(event) {
   trace('Received Message');
-  addChatMessage("other", event.data);
+  var message = JSON.parse(event.data);
 
+  if (message.chat) {
+    addChatMessage("other", message.chat.text);
+  }
 
 <!-- game logic here
 
