@@ -17,11 +17,16 @@ app.http().io();
 var PORT = 3000;
 console.log('server started on port ' + PORT);
 
+// FIXME: Serve static content elsewhere
+
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function(req, res){
 	res.render('connection.ejs');
 });
+
+// END FIXME
+
 
 app.listen(process.env.PORT || PORT);
 

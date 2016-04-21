@@ -8,6 +8,8 @@
  *  tree.
  */
 
+// FIXME: Rewrite all of this to use Promise(s) instead of callbacks
+
 function trace(text) {
   // This function is used for logging.
   if (text[text.length - 1] === '\n') {
@@ -21,18 +23,36 @@ function trace(text) {
   }
 }
 
+function status(text) {
+  trace(text);
+
+  statusArea.innerHTML = text;
+}
+
 function logError(error) {
 	trace(error.name + ': ' + error.message);
 }
 
 var peerConnection;
 var dataChannel;
-var dataChannelSend = document.querySelector('textarea#dataChannelSend');
+var dataChannelSend = document.querySelector('input#dataChannelSend');
 var dataChannelReceive = document.querySelector('div#dataChannelReceive');
+var connectButton = document.querySelector('button#connectButton');
 var sendButton = document.querySelector('button#sendButton');
 var disconnectButton = document.querySelector('button#disconnectButton');
+var statusArea = document.querySelector('#statusArea');
+
+connectButton.onclick = openDataChannel;
 sendButton.onclick = sendData;
 disconnectButton.onclick = closeDataChannel;
+
+dataChannelSend.addEventListener('keypress', function(event) {
+  if (event.keyCode == 13) {
+    event.preventDefault();
+    sendButton.click();
+  }
+});
+
 
 var signalRoom = "chatroom";
 
@@ -51,6 +71,7 @@ var dataChannelConfiguration = {
   maxRetransmitTime: 5000 //milliseconds
 };
 
+status("Initializing")
 
 // Set up Socket.io
 trace("Setting up socket.io")
@@ -65,16 +86,18 @@ io.on('signaling_message', function(data) {
   }
 
   if (data.type == 'ice_candidate') {
+    status("Got ICE candidate");
     var message = JSON.parse(data.message);
     trace('Adding ice candidate: ' + message.candidate)
     peerConnection.addIceCandidate(new RTCIceCandidate(message.candidate));
   }
   else if (data.type == 'SDP') {
+    status("Got remote session");
     var message = JSON.parse(data.message);
 
     peerConnection.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
       // if we received an offer, we need to answer
-      trace('Setting remote description')
+      status('Setting remote description');
       if (peerConnection.remoteDescription.type == 'offer') {
         peerConnection.createAnswer(offerDescription, logError);
       }
@@ -82,7 +105,8 @@ io.on('signaling_message', function(data) {
   }
   else if (data.type == 'user_here' && !dataChannel) {
     // Another client connected; create our data channel and negotiate communication
-    createDataChannel();
+    status("Connecting to remote client");
+    openDataChannel();
   }
 });
 
@@ -91,6 +115,7 @@ function createConnection() {
     return;
   }
 
+  status("Setting up connection");
   peerConnection = new RTCPeerConnection(RTCPeerConfiguration);
   trace('Created peer connection object peerConnection');
 
@@ -99,6 +124,7 @@ function createConnection() {
   peerConnection.onnegotiationneeded = negotiationCallback;
 
   io.emit('signal', {"type": "user_here", "message": "Would you like to play a game?", "room": signalRoom});
+  status("Waiting for remote client");
 }
 
 function iceCallback(event) {
@@ -114,36 +140,39 @@ function iceCallback(event) {
 }
 
 function negotiationCallback() {
-  trace('Creating offer');
+  status('Creating session offer');
   peerConnection.createOffer(offerDescription, function (error) {
     trace('Failed to create session description: ' + error.toString());
   });
 };
 
-function createDataChannel() {
+function openDataChannel() {
   dataChannel = peerConnection.createDataChannel('sendDataChannel',
     dataChannelConfiguration);
-  trace('Created data channel');
+  status('Created data channel');
 
   dataChannel.onopen = onDataChannelOpen;
   dataChannel.onclose = onDataChannelClose;
-  dataChannel.onmessage = onReceiveMessageCallback;
+  dataChannel.onmessage = onReceiveMessage;
 
   dataChannelSend.placeholder = '';
   dataChannelSend.disabled = false;
   dataChannelSend.focus();
 
+  connectButton.disabled = true;
   sendButton.disabled = false;
   disconnectButton.disabled = false;
+
+  status('Ready');
 }
 
 function receiveChannelCallback(event) {
-  trace('Received data channel');
+  status('Received data channel');
   dataChannel = event.channel;
 
   dataChannel.onopen = onDataChannelOpen;
   dataChannel.onclose = onDataChannelClose;
-  dataChannel.onmessage = onReceiveMessageCallback;
+  dataChannel.onmessage = onReceiveMessage;
 }
 
 function onDataChannelOpen() {
@@ -153,33 +182,41 @@ function onDataChannelOpen() {
   dataChannelSend.disabled = false;
   dataChannelSend.focus();
 
+  connectButton.disabled = true;
   sendButton.disabled = false;
   disconnectButton.disabled = false;
+  status('Ready');
 }
 
 function onDataChannelClose() {
+  status("Closing data channel")
   trace('Data channel state is: ' + dataChannel.readyState);
 
+  dataChannelSend.value = '';
   dataChannelSend.placeholder = 'Not connected';
   dataChannelSend.disabled = true;
 
+  connectButton.disabled = false;
   sendButton.disabled = true;
   disconnectButton.disabled = true;
+  status("Disconnected")
 }
 
 function sendData() {
+  status("Sending...");
   var data = dataChannelSend.value;
   dataChannel.send(data);
+  addChatMessage("self", data);
+  dataChannelSend.value = '';
+
   trace('Sent Data: ' + data);
+  status("Ready");
 }
 
 function closeDataChannel() {
-  trace('Closing data channel');
+  status('Closing data channel');
   dataChannel.close();
   trace('Closed data channel with label: ' + dataChannel.label);
-  peerConnection.close();
-  peerConnection = null;
-  trace('Closed peer connections');
 
   dataChannelSend.value = '';
   dataChannelSend.placeholder = 'Not connected';
@@ -187,6 +224,7 @@ function closeDataChannel() {
 
   sendButton.disabled = true;
   disconnectButton.disabled = true;
+  status("Disconnected")
 }
 
 function offerDescription(desc) {
@@ -198,18 +236,29 @@ function offerDescription(desc) {
   }, logError);
 }
 
-function onAddIceCandidateSuccess() {
-  trace('AddIceCandidate success.');
+function addChatMessage(who, message) {
+  if (message.length == 0) {
+    return;
+  }
+
+  var quote = document.createElement('blockquote');
+  quote.className = "chat--message__" + who;
+
+  var cite = document.createElement('cite');
+  cite.appendChild(document.createTextNode(who + ": "))
+
+  quote.appendChild(cite);
+  quote.appendChild(document.createTextNode(message));
+
+  dataChannelReceive.appendChild(quote);
+
+  return;
 }
 
-function onAddIceCandidateError(error) {
-  trace('Failed to add Ice Candidate: ' + error.toString());
-}
-
-function onReceiveMessageCallback(event) {
+function onReceiveMessage(event) {
   trace('Received Message');
-  dataChannelReceive.appendChild(document.createElement('br'));
-  dataChannelReceive.appendChild(document.createTextNode(event.data));
+  addChatMessage("other", event.data);
+
 
 <!-- game logic here
 

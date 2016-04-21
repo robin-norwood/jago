@@ -23,14 +23,15 @@ Using the "jGoboard" library from http://jgoboard.com
   . M1: Implement webRTC, POC: Two browsers control one board
     . <del>Read https://webrtchacks.com/datachannel-multiplayer-game/</del>
     . <del>Read http://www.html5rocks.com/en/tutorials/webrtc/datachannels/</del>
-    . POC: Transfer data between two browsers
+    . <del>POC: Transfer data between two browsers</del>
+    . <del>Clean up chat</del>
     . Transfer moves
     . Handle invalid moves/cheating attempts
     . Heartbeat/notice disconnects
     . Handle reconnects
   . M1: Setup test framework
   . M1: Setup "production" stun server
-
+  . M1: Setup "production" environment
 
 ## Milestones
 
