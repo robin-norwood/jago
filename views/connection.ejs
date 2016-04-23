@@ -3,23 +3,42 @@
 <head>
   <meta charset="utf-8">
   <title>webRTC connection poc</title>
-  <link rel="stylesheet" href="styles/connection.css" />
+  <link rel="stylesheet" type="text/css" href="styles/connection.css"/>
 </head>
 <body>
 <!-- Based on https://github.com/webrtc/samples/tree/gh-pages/src/content/datachannel/basic
      and https://github.com/agilityfeat/memory-webrtc-data-channel
 -->
-  <div>
+  <main>
+    <header>
       <h1>WebRTC Connection POC</h1>
-      <div>
+      <section>
         <button id="connectButton" disabled>Connect</button>
         <button id="disconnectButton" disabled>Disconnect</button>
-      </div>
-      <h3>Status</h3>
+      </section>
 
-      <div id="statusArea"></div>
+      <section>
+        <h3>Status</h3>
 
-      <div class="chatArea">
+        <div id="statusArea"></div>
+      </section>
+    </header>
+
+    <section class="gameArea">
+
+      <section class="gameArea__score">
+        Black<br/>
+        <span id="black-captures">0</span>
+      </section>
+      <section class="boardArea">
+        <div id="board"></div>
+      </section>
+      <section class="gameArea__score">
+        White<br/>
+        <span id="white-captures">0</span>
+      </section>
+
+      <section class="chatArea">
         <div>
           <h2>Chat</h2>
           <div class="chatArea--messageArea">
@@ -27,13 +46,24 @@
           </div>
         </div>
         <div id="send">
-          <input id="dataChannelSend" type="text" name="chatinput" autocomplete="off" disabled/>
+          <input id="dataChannelSend" class="chatInput" type="text" name="chatinput" autocomplete="off" disabled/>
           <button id="sendButton" type="submit" disabled>Send</button>
         </div>
-      </div>
-  </div>
-  
-  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+      </section>
+    </section>
+
+  </main>
+
+
+  <!-- Libraries -->
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>-
+  <script type="text/javascript" src="scripts/jgoboard-latest.js"></script>
+  <script type="text/javascript" src="large/board.js"></script>
+  <script type="text/javascript" src="medium/board.js"></script>
+
+  <!-- Custom code -->
+
+  <script type="text/javascript" src="scripts/game.js"></script>
   <script src="scripts/connection.js"></script>
 
 </body>

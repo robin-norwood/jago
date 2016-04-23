@@ -4,11 +4,29 @@
 
 */
 
+.gameArea {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  width: 95%;
+}
+
+.boardArea {
+
+}
+
+.gameArea__score {
+  margin: 1em auto;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 2.5em;
+  text-align: center;
+}
+
 .chatArea {
-  border-bottom: 1px solid #eee;
-  margin: 0;
+  margin: .5em;
   padding: 0 0 10px 0;
-  float: right;
   width: 40%;
 }
 
@@ -26,4 +44,23 @@
   position: absolute;
   bottom: 0px;
   left: 0px;
+}
+
+.chatArea--chatMessage {
+  -webkit-margin-before: .125em;
+  -webkit-margin-after: .125em;
+  -webkit-margin-start: 3px;
+  -webkit-margin-end: 8px;
+}
+
+.chatArea--chatMessage__self {
+
+}
+
+.chatArea--chatMessage__other {
+
+}
+
+.chatInput {
+    width: 70%;
 }

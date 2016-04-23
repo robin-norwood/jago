@@ -36,13 +36,13 @@ function logError(error) {
 var peerConnection;
 var dataChannel;
 var dataChannelSend = document.querySelector('input#dataChannelSend');
-var dataChannelReceive = document.querySelector('div#dataChannelReceive');
+var dataChannelReceive = document.querySelector('#dataChannelReceive');
 var connectButton = document.querySelector('button#connectButton');
 var sendButton = document.querySelector('button#sendButton');
 var disconnectButton = document.querySelector('button#disconnectButton');
 var statusArea = document.querySelector('#statusArea');
 var players = ["black", "white"];
-var player;
+var playerColor;
 
 connectButton.onclick = openDataChannel;
 sendButton.onclick = sendData;
@@ -111,7 +111,7 @@ io.on('signaling_message', function(data) {
   }
   else if (data.type == 'owner') {
     trace("Got owner signal");
-    player = 'black';
+    playerColor = 'black';
   }
 });
 
@@ -193,8 +193,8 @@ function onDataChannelOpen() {
 
   status('Ready');
 
-  if (player) {
-    var data = JSON.stringify({announce: { myColor: player }});
+  if (playerColor) {
+    var data = JSON.stringify({announce: { myColor: playerColor }});
     dataChannel.send(data);
   }
 }
@@ -255,7 +255,7 @@ function addChatMessage(who, message) {
   }
 
   var quote = document.createElement('blockquote');
-  quote.className = "chat--message__" + who;
+  quote.className = "chatArea--chatMessage chatArea--chatMessage__" + who;
 
   var cite = document.createElement('cite');
   cite.appendChild(document.createTextNode(who + ": "))
@@ -277,17 +277,18 @@ function onReceiveMessage(event) {
   }
   if (message.announce) {
     var otherColor = message.announce.myColor;
-    if (otherColor == player) {
-      trace("ERROR: Other player tried to claim my color: " + player); // FIXME: Handle this better
+    if (otherColor == playerColor) {
+      trace("ERROR: Other player tried to claim my color: " + playerColor); // FIXME: Handle this better
     }
-    else if (typeof player == 'undefined') { // I don't have a color yet, so I must be...
-      player = "white";
-      var data = JSON.stringify({announce: { myColor: player }});
+    else if (typeof playerColor == 'undefined') { // I don't have a color yet, so I must be...
+      playerColor = "white";
+      var data = JSON.stringify({announce: { myColor: playerColor }});
       dataChannel.send(data);
     }
 
-    addChatMessage("other", "I am " + otherColor);
+    addChatMessage("other", "I will play " + otherColor);
   }
+  
 <!-- game logic here
 
   if (event.data.split(" ")[0] == "memoryFlipTile") {

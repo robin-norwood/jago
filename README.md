@@ -25,7 +25,8 @@ Using the "jGoboard" library from http://jgoboard.com
     . <del>Read http://www.html5rocks.com/en/tutorials/webrtc/datachannels/</del>
     . <del>POC: Transfer data between two browsers</del>
     . <del>Clean up chat</del>
-    . Transfer moves
+    . <del>Clean up UI a bit, select player</del>
+    . Transfer moves & enable/disable local board control
     . Handle invalid moves/cheating attempts
     . Heartbeat/notice disconnects
     . Handle reconnects
@@ -34,6 +35,9 @@ Using the "jGoboard" library from http://jgoboard.com
   . M1: Setup "production" environment
 
 ## Milestones
+
+### Milestone 1
+  1. Working game between two players with chat
 
 ### RELEASE 1.0
   1. Full 9x9 game over webRTC, with score and declared winner.

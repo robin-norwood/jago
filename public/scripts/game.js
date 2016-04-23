@@ -2,17 +2,18 @@ var updateCaptures = function (node) {
   document.getElementById('black-captures').innerText = node.info.captures[JGO.BLACK];
   document.getElementById('white-captures').innerText = node.info.captures[JGO.WHITE];
 };
-
 var jrecord = new JGO.Record(13);
 var jboard = jrecord.jboard;
-var jsetup = new JGO.Setup(jboard, JGO.BOARD.largeShinkaya);
-var player = JGO.WHITE; // next player
+var jsetup = new JGO.Setup(jboard, JGO.BOARD.medium);
+var player = JGO.BLACK; // next player
 var ko = false, lastMove = false; // ko coordinate and last move coordinate
 var lastHover = false, lastX = -1, lastY = -1; // hover helper vars
 
-jboard.setType(JGO.util.getHandicapCoordinates(jboard.width, 2), JGO.BLACK);
+//jboard.setType(JGO.util.getHandicapCoordinates(jboard.width, 2), JGO.BLACK);
 
-jsetup.setOptions({stars: {points:5}});
+jsetup.setOptions({stars: {points:5},
+      coordinates: {top:false, bottom:true, left:true, right:false}});
+
 jsetup.create('board', function(canvas) {
   canvas.addListener('click', function(coord, ev) {
     var opponent = (player == JGO.BLACK) ? JGO.WHITE : JGO.BLACK;
