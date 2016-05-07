@@ -41,8 +41,9 @@ var connectButton = document.querySelector('button#connectButton');
 var sendButton = document.querySelector('button#sendButton');
 var disconnectButton = document.querySelector('button#disconnectButton');
 var statusArea = document.querySelector('#statusArea');
-var players = ["black", "white"];
-var playerColor;
+var players = [undefined, "black", "white"];
+var player = undefined;
+var turn = JGO.BLACK; // black goes first
 
 connectButton.onclick = openDataChannel;
 sendButton.onclick = sendData;
@@ -111,7 +112,7 @@ io.on('signaling_message', function(data) {
   }
   else if (data.type == 'owner') {
     trace("Got owner signal");
-    playerColor = 'black';
+    player = JGO.BLACK;
   }
 });
 
@@ -193,8 +194,8 @@ function onDataChannelOpen() {
 
   status('Ready');
 
-  if (playerColor) {
-    var data = JSON.stringify({announce: { myColor: playerColor }});
+  if (typeof player != "undefined") {
+    var data = JSON.stringify({announce: { myColor: players[player] }});
     dataChannel.send(data);
   }
 }
@@ -275,35 +276,24 @@ function onReceiveMessage(event) {
   if (message.chat) {
     addChatMessage("other", message.chat.text);
   }
-  if (message.announce) {
+  else if (message.announce) {
     var otherColor = message.announce.myColor;
-    if (otherColor == playerColor) {
-      trace("ERROR: Other player tried to claim my color: " + playerColor); // FIXME: Handle this better
+    if (otherColor == players[player]) {
+      trace("ERROR: Other player tried to claim my color: " + players[player]); // FIXME: Handle this better
     }
-    else if (typeof playerColor == 'undefined') { // I don't have a color yet, so I must be...
-      playerColor = "white";
-      var data = JSON.stringify({announce: { myColor: playerColor }});
+    else if (typeof player == 'undefined') { // I don't have a color yet, so I must be...
+      player = JGO.WHITE;
+      var data = JSON.stringify({announce: { myColor: players[player] }});
       dataChannel.send(data);
     }
 
     addChatMessage("other", "I will play " + otherColor);
   }
-  
-<!-- game logic here
-
-  if (event.data.split(" ")[0] == "memoryFlipTile") {
-		var tileToFlip = event.data.split(" ")[1];
-		displayMessage("Flipping tile " + tileToFlip);
-		var tile = document.querySelector("#" + tileToFlip);
-		var index = tileToFlip.split("_")[1];
-		var tile_value = memory_array[index];
-		flipTheTile(tile,tile_value);
-	} else if (event.data.split(" ")[0] == "newBoard") {
-		displayMessage("Setting up new board");
-		memory_array = event.data.split(" ")[1].split(",");
-		newBoard();
-	}
--->
+  else if (message.move) {
+    var move = new JGO.Coordinate(message.move.i, message.move.j);
+    var opp = (player == JGO.BLACK) ? JGO.WHITE : JGO.BLACK;
+    var play = makeMove(move, opp);
+  }
 }
 
 createConnection();

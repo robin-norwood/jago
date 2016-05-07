@@ -5,28 +5,61 @@ var updateCaptures = function (node) {
 var jrecord = new JGO.Record(13);
 var jboard = jrecord.jboard;
 var jsetup = new JGO.Setup(jboard, JGO.BOARD.medium);
-var player = JGO.BLACK; // next player
+//var player = JGO.BLACK; // next player // defined in connection.js
 var ko = false, lastMove = false; // ko coordinate and last move coordinate
 var lastHover = false, lastX = -1, lastY = -1; // hover helper vars
 
 //jboard.setType(JGO.util.getHandicapCoordinates(jboard.width, 2), JGO.BLACK);
+
+function makeMove(coord, plyr) {
+  var opponent = (plyr == JGO.BLACK) ? JGO.WHITE : JGO.BLACK;
+  var play = jboard.playMove(coord, plyr, ko);
+
+  if(play.success) {
+    node = jrecord.createNode(true);
+    node.info.captures[plyr] += play.captures.length; // tally captures
+    node.setType(coord, plyr); // play stone
+    node.setType(play.captures, JGO.CLEAR); // clear opponent's stones
+
+    if(lastMove)
+      node.setMark(lastMove, JGO.MARK.NONE); // clear previous mark
+    if(ko)
+      node.setMark(ko, JGO.MARK.NONE); // clear previous ko mark
+
+    node.setMark(coord, JGO.MARK.CIRCLE); // mark move
+    lastMove = coord;
+
+    if(play.ko)
+      node.setMark(play.ko, JGO.MARK.CIRCLE); // mark ko, too
+    ko = play.ko;
+
+    turn = opponent;
+    updateCaptures(node);
+  }
+  else {
+    alert('Illegal move: ' + play.errorMsg);
+  }
+
+  return play;
+}
 
 jsetup.setOptions({stars: {points:5},
       coordinates: {top:false, bottom:true, left:true, right:false}});
 
 jsetup.create('board', function(canvas) {
   canvas.addListener('click', function(coord, ev) {
-    var opponent = (player == JGO.BLACK) ? JGO.WHITE : JGO.BLACK;
-
     if(ev.shiftKey) { // on shift do edit
       if(jboard.getMark(coord) == JGO.MARK.NONE)
         jboard.setMark(coord, JGO.MARK.SELECTED);
       else
         jboard.setMark(coord, JGO.MARK.NONE);
 
-      return;
+      return; // Marks are local only
     }
 
+    if (turn != player) {
+      return; // Not this player's turn
+    }
     // clear hover away - it'll be replaced or then it will be an illegal move
     // in any case so no need to worry about putting it back afterwards
     if(lastHover)
@@ -34,29 +67,13 @@ jsetup.create('board', function(canvas) {
 
     lastHover = false;
 
-    var play = jboard.playMove(coord, player, ko);
+    var localPlay = makeMove(coord, player);
 
-    if(play.success) {
-      node = jrecord.createNode(true);
-      node.info.captures[player] += play.captures.length; // tally captures
-      node.setType(coord, player); // play stone
-      node.setType(play.captures, JGO.CLEAR); // clear opponent's stones
-
-      if(lastMove)
-        node.setMark(lastMove, JGO.MARK.NONE); // clear previous mark
-      if(ko)
-        node.setMark(ko, JGO.MARK.NONE); // clear previous ko mark
-
-      node.setMark(coord, JGO.MARK.CIRCLE); // mark move
-      lastMove = coord;
-
-      if(play.ko)
-        node.setMark(play.ko, JGO.MARK.CIRCLE); // mark ko, too
-      ko = play.ko;
-
-      player = opponent;
-      updateCaptures(node);
-    } else alert('Illegal move: ' + play.errorMsg);
+    if (localPlay.success) {
+      // When a local play succeeds, send it to the opponent
+      data = JSON.stringify({move: { i: coord.i, j: coord.j }});
+      dataChannel.send(data);
+    }
   });
 
   canvas.addListener('mousemove', function(coord, ev) {
@@ -69,7 +86,9 @@ jsetup.create('board', function(canvas) {
     lastX = coord.i;
     lastY = coord.j;
 
-    if(jboard.getType(coord) == JGO.CLEAR && jboard.getMark(coord) == JGO.MARK.NONE) {
+    if(jboard.getType(coord) == JGO.CLEAR &&
+       jboard.getMark(coord) == JGO.MARK.NONE &&
+       turn == player) {
       jboard.setType(coord, player == JGO.WHITE ? JGO.DIM_WHITE : JGO.DIM_BLACK);
       lastHover = true;
     } else
