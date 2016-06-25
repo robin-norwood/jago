@@ -41,8 +41,8 @@ var connectButton = document.querySelector('button#connectButton');
 var sendButton = document.querySelector('button#sendButton');
 var disconnectButton = document.querySelector('button#disconnectButton');
 var statusArea = document.querySelector('#statusArea');
-var players = [undefined, "black", "white"];
-var player = undefined;
+var players = [null, "black", "white"];
+var player = null;
 var turn = JGO.BLACK; // black goes first
 
 connectButton.onclick = openDataChannel;
@@ -50,7 +50,7 @@ sendButton.onclick = sendData;
 disconnectButton.onclick = closeDataChannel;
 
 dataChannelSend.addEventListener('keypress', function(event) {
-  if (event.keyCode == 13) {
+  if (event.keyCode == 13) { // enter
     event.preventDefault();
     sendButton.click();
   }
@@ -73,10 +73,10 @@ var dataChannelConfiguration = {
   maxRetransmitTime: 5000 //milliseconds
 };
 
-status("Initializing")
+status("Initializing");
 
 // Set up Socket.io
-trace("Setting up socket.io")
+trace("Setting up socket.io");
 io = io.connect();
 io.emit('client_ready', {"signal_room": signalRoom});
 
@@ -90,7 +90,7 @@ io.on('signaling_message', function(data) {
   if (data.type == 'ice_candidate') {
     status("Got ICE candidate");
     var message = JSON.parse(data.message);
-    trace('Adding ice candidate: ' + message.candidate)
+    trace('Adding ice candidate: ' + message.candidate);
     peerConnection.addIceCandidate(new RTCIceCandidate(message.candidate));
   }
   else if (data.type == 'SDP') {
@@ -136,7 +136,7 @@ function createConnection() {
 function iceCallback(event) {
   trace('Ice callback');
   if (!peerConnection || !event || !event.candidate) {
-    trace("Returning...")
+    trace("Returning...");
   }
   if (event.candidate) {
     trace('ICE candidate: \n' + event.candidate.candidate);
@@ -194,14 +194,14 @@ function onDataChannelOpen() {
 
   status('Ready');
 
-  if (typeof player != "undefined") {
+  if (player) {
     var data = JSON.stringify({announce: { myColor: players[player] }});
     dataChannel.send(data);
   }
 }
 
 function onDataChannelClose() {
-  status("Closing data channel")
+  status("Closing data channel");
   trace('Data channel state is: ' + dataChannel.readyState);
 
   dataChannelSend.value = '';
@@ -281,7 +281,7 @@ function onReceiveMessage(event) {
     if (otherColor == players[player]) {
       trace("ERROR: Other player tried to claim my color: " + players[player]); // FIXME: Handle this better
     }
-    else if (typeof player == 'undefined') { // I don't have a color yet, so I must be...
+    else if (! player) { // I don't have a color yet, so I must be...
       player = JGO.WHITE;
       var data = JSON.stringify({announce: { myColor: players[player] }});
       dataChannel.send(data);
