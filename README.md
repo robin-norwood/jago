@@ -1,9 +1,16 @@
 ## Vision
-Real-time two-player Go in the browser.
+Real time two-player Go in the browser.
 
 ## About
 
 Using the "jGoboard" library from http://jgoboard.com
+
+## Running
+
+  . Install node.js
+  . Run `npm install`
+  . Run `node server.js`
+  . Open `localhost:3000` in two different Chrome windows
 
 ## Planned Features
   . Chat (+optional audio/video)
@@ -26,8 +33,8 @@ Using the "jGoboard" library from http://jgoboard.com
     . <del>POC: Transfer data between two browsers</del>
     . <del>Clean up chat</del>
     . <del>Clean up UI a bit, select player</del>
-    . Transfer moves & enable/disable local board control
-    . Handle invalid moves/cheating attempts
+    . <del>Transfer moves & enable/disable local board control</del>
+    . <del>Handle invalid moves/cheating attempts</del>
     . Heartbeat/notice disconnects
     . Handle reconnects
   . M1: Setup test framework
