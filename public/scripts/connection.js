@@ -211,7 +211,7 @@ function onDataChannelClose() {
   connectButton.disabled = false;
   sendButton.disabled = true;
   disconnectButton.disabled = true;
-  status("Disconnected")
+  status("Disconnected");
 }
 
 function sendData() {
@@ -238,7 +238,7 @@ function closeDataChannel() {
 
   sendButton.disabled = true;
   disconnectButton.disabled = true;
-  status("Disconnected")
+  status("Disconnected");
 }
 
 function offerDescription(desc) {
@@ -259,7 +259,7 @@ function addChatMessage(who, message) {
   quote.className = "chatArea--chatMessage chatArea--chatMessage__" + who;
 
   var cite = document.createElement('cite');
-  cite.appendChild(document.createTextNode(who + ": "))
+  cite.appendChild(document.createTextNode(who + ": "));
 
   quote.appendChild(cite);
   quote.appendChild(document.createTextNode(message));
