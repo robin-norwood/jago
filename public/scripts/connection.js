@@ -37,17 +37,13 @@ var peerConnection;
 var dataChannel;
 var dataChannelSend = document.querySelector('input#dataChannelSend');
 var dataChannelReceive = document.querySelector('#dataChannelReceive');
-var connectButton = document.querySelector('button#connectButton');
 var sendButton = document.querySelector('button#sendButton');
-var disconnectButton = document.querySelector('button#disconnectButton');
 var statusArea = document.querySelector('#statusArea');
 var players = [null, "black", "white"];
 var player = null;
 var turn = JGO.BLACK; // black goes first
 
-connectButton.onclick = openDataChannel;
 sendButton.onclick = sendData;
-disconnectButton.onclick = closeDataChannel;
 
 dataChannelSend.addEventListener('keypress', function(event) {
   if (event.keyCode == 13) { // enter
@@ -61,6 +57,10 @@ var signalRoom = "chatroom";
 // Browser compatability for webRTC
 var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection ||
                         window.webkitRTCPeerConnection;
+
+if (! RTCPeerConnection) {
+  alert("This only works with modern browsers");
+}
 
 var RTCPeerConfiguration = {
 	'iceServers': [{
@@ -165,9 +165,7 @@ function openDataChannel() {
   dataChannelSend.disabled = false;
   dataChannelSend.focus();
 
-  connectButton.disabled = true;
   sendButton.disabled = false;
-  disconnectButton.disabled = false;
 
   status('Ready');
 }
@@ -188,9 +186,7 @@ function onDataChannelOpen() {
   dataChannelSend.disabled = false;
   dataChannelSend.focus();
 
-  connectButton.disabled = true;
   sendButton.disabled = false;
-  disconnectButton.disabled = false;
 
   status('Ready');
 
@@ -208,9 +204,7 @@ function onDataChannelClose() {
   dataChannelSend.placeholder = 'Not connected';
   dataChannelSend.disabled = true;
 
-  connectButton.disabled = false;
   sendButton.disabled = true;
-  disconnectButton.disabled = true;
   status("Disconnected");
 }
 
@@ -227,7 +221,7 @@ function sendData() {
   status("Ready");
 }
 
-function closeDataChannel() {
+function closeDataChannel() { // Not used at the moment
   status('Closing data channel');
   dataChannel.close();
   trace('Closed data channel with label: ' + dataChannel.label);
@@ -237,7 +231,6 @@ function closeDataChannel() {
   dataChannelSend.disabled = true;
 
   sendButton.disabled = true;
-  disconnectButton.disabled = true;
   status("Disconnected");
 }
 
