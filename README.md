@@ -70,3 +70,7 @@ Jago ("Yah-GO") is in early development, and is intended to become a complete Go
 Jago is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/4.0/deed.en_US
 
 Jago uses the "jGoBoard" library from http://jgoboard.com, which is also CC BY-NC licensed.
+
+## Tutorials/documentation
+
+Based on https://github.com/webrtc/samples/tree/gh-pages/src/content/datachannel/basic and https://github.com/agilityfeat/memory-webrtc-data-channel
