@@ -14,20 +14,21 @@ It is for educational purposes only, and any other use is done at your own risk.
 var express = require('express.io');
 var app = express();
 app.http().io();
-var PORT = 3000;
+
+var PORT = process.env.PORT || 3000;
+app.listen(PORT);
 console.log('server started on port ' + PORT);
 
 // FIXME: Serve static content elsewhere
 
 app.use(express.static(__dirname + '/public'));
 
-app.get('/', function(req, res){
+app.get('/', function(req, res) {
 	res.render('connection.ejs');
 });
 
 // END FIXME
 
-app.listen(process.env.PORT || PORT);
 
 // FIXME: sucks that we're keeping state for the room here.
 // Find a better way, or at least support multiple rooms without too much overhead.
@@ -46,7 +47,7 @@ app.io.route('client_ready', function(req) {
 
 app.io.route('signal', function(req) {
 	// Note the use of req instead of app here for broadcasting so
-	// only the sender doesn't receive their own messages
+	// the sender doesn't receive their own messages
 	console.log("Got signal from room: " + req.data.room);
 	console.log("  type: " + req.data.type);
 	req.io.room(req.data.room).broadcast('signaling_message', {
