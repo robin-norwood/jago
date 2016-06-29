@@ -1,14 +1,13 @@
 'use strict';
 
 /*
- *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
+ * Handle connection and player negotiation.
  *
- *  Use of this source code is governed by a BSD-style license
- *  that can be found in the LICENSE file in the root of the source
- *  tree.
+ * Based on WebRTC demo code.
+ *
  */
 
-// FIXME: Rewrite all of this to use Promise(s) instead of callbacks
+// FIXME: Rewrite all of this to use Promises instead of callbacks
 
 function trace(text) {
   // This function is used for logging.
@@ -41,6 +40,8 @@ var sendButton = document.querySelector('button#sendButton');
 var statusArea = document.querySelector('#statusArea');
 var players = [null, "black", "white"];
 var player = null;
+var player_secret = null;
+
 var turn = JGO.BLACK; // black goes first
 
 sendButton.onclick = sendData;
@@ -51,8 +52,6 @@ dataChannelSend.addEventListener('keypress', function(event) {
     sendButton.click();
   }
 });
-
-var signalRoom = "chatroom";
 
 // Browser compatability for webRTC
 var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection ||
@@ -78,7 +77,17 @@ status("Initializing");
 // Set up Socket.io
 trace("Setting up socket.io");
 io = io.connect();
-io.emit('client_ready', {"signal_room": signalRoom});
+
+var game_id = window.location.pathname.split("/").pop();
+var color_pref = window.location.hash || "#";
+color_pref = color_pref.slice(1);
+
+trace("Requesting color " + color_pref)
+trace("Connecting to game " + game_id);
+
+io.emit('client_ready', { "room": "game_" + game_id,
+                          "game_id": game_id,
+                          "color_pref": color_pref });
 
 io.on('signaling_message', function(data) {
   trace('Signal received: ' + data.type);
@@ -110,9 +119,17 @@ io.on('signaling_message', function(data) {
     status("Connecting to remote client");
     openDataChannel();
   }
-  else if (data.type == 'owner') {
-    trace("Got owner signal");
-    player = JGO.BLACK;
+  else if (data.type == 'joined') {
+    trace("Got joined signal");
+    player_secret = data.player_secret;
+    if (data.player_color == "black") {
+      trace("I am playing black");
+      player = JGO.BLACK;
+    }
+    else {
+      trace("I am playing white");
+      player = JGO.WHITE;
+    }
   }
 });
 
@@ -129,7 +146,10 @@ function createConnection() {
   peerConnection.ondatachannel = receiveChannelCallback;
   peerConnection.onnegotiationneeded = negotiationCallback;
 
-  io.emit('signal', {"type": "user_here", "message": "Would you like to play a game?", "room": signalRoom});
+  io.emit('signal', {"type": "user_here",
+                     "message": "Would you like to play a game?",
+                     "room": "game_" + game_id});
+
   status("Waiting for remote client");
 }
 
@@ -141,7 +161,8 @@ function iceCallback(event) {
   if (event.candidate) {
     trace('ICE candidate: \n' + event.candidate.candidate);
     io.emit('signal', {"type": "ice_candidate",
-      "message": JSON.stringify({ 'candidate': event.candidate }), "room": signalRoom});
+                       "message": JSON.stringify({ 'candidate': event.candidate }),
+                       "room": "game_" + game_id});
   }
 }
 
@@ -237,8 +258,9 @@ function closeDataChannel() { // Not used at the moment
 function offerDescription(desc) {
   trace('Offer from peerConnection \n' + desc.sdp);
   peerConnection.setLocalDescription(desc, function () {
-    io.emit('signal',
-      {"type": "SDP", "message": JSON.stringify({ 'sdp': peerConnection.localDescription }), "room": signalRoom}
+    io.emit('signal', {"type": "SDP",
+                       "message": JSON.stringify({ 'sdp': peerConnection.localDescription }),
+                       "room": "game_" + game_id}
     );
   }, logError);
 }
@@ -263,26 +285,20 @@ function addChatMessage(who, message) {
 }
 
 function onReceiveMessage(event) {
-  trace('Received Message');
+  trace('Received Message -> ' + event.data);
   var message = JSON.parse(event.data);
 
   if (message.chat) {
+    trace(' chat: ' + message.chat.text)
     addChatMessage("other", message.chat.text);
   }
   else if (message.announce) {
-    var otherColor = message.announce.myColor;
-    if (otherColor == players[player]) {
-      trace("ERROR: Other player tried to claim my color: " + players[player]); // FIXME: Handle this better
-    }
-    else if (! player) { // I don't have a color yet, so I must be...
-      player = JGO.WHITE;
-      var data = JSON.stringify({announce: { myColor: players[player] }});
-      dataChannel.send(data);
-    }
-
-    addChatMessage("other", "I will play " + otherColor);
+    trace(' announce: ' + message.announce.myColor);
+    addChatMessage("other", "I will play " + message.announce.myColor);
   }
   else if (message.move) {
+    trace(' move: (' + message.move.i + ', ' + message.move.j +')');
+
     var move = new JGO.Coordinate(message.move.i, message.move.j);
     var opp = (player == JGO.BLACK) ? JGO.WHITE : JGO.BLACK;
     var play = makeMove(move, opp);

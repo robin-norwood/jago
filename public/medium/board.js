@@ -5,10 +5,10 @@ JGO.BOARD = JGO.BOARD || {};
 
 JGO.BOARD.medium = {
     textures: {
-        black: 'medium/black.png',
-        white: 'medium/white.png',
-        shadow:'medium/shadow.png',
-        board: 'medium/shinkaya.jpg'
+        black: '/medium/black.png',
+        white: '/medium/white.png',
+        shadow:'/medium/shadow.png',
+        board: '/medium/shinkaya.jpg'
     },
 
     // Margins around the board, both on normal edges and clipped ones
