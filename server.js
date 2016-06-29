@@ -65,9 +65,6 @@ app.get('/game/:id', function(req, res) {
 
 // Socket.io routes
 
-// FIXME: sucks that we're keeping state for the room here.
-// Find a better way, or at least support multiple rooms without too much overhead.
-
 app.io.route('client_ready', function(req) {
 	console.log("Got client ready for game: " + req.data.game_id);
 	req.io.join(req.data.room); // Join the room to get more messages
@@ -88,7 +85,7 @@ app.io.route('client_ready', function(req) {
 
 	console.log("Found board " + board.seq.toString());
 
-	if (board.status = gb.STATUS_IN_PROGRESS) {
+	if (board.status == gb.STATUS_IN_PROGRESS) {
 		// FIXME: Handle observers
 	}
 	else {

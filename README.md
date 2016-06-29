@@ -39,21 +39,27 @@ Jago ("Yah-GO") is in early development, and is intended to become a complete Go
     * <del>Handle invalid moves/cheating attempts</del>
     * <del>Support multiple games</del>
     * <del>Show other player's "hover" events</del>
-    * Show in-progress games
-    * Support observers
-    * Heartbeat/notice disconnects
-    * Handle reconnects
+    * <del>Show open games</del>
+    * Handle "pass" moves
+    * Handle victory
+    * Handle surrender
   * M1: Setup test framework
   * M1: Setup "production" stun server
   * M1: Setup "production" environment
+  * M2: Handle reconnects
+  * M2: Support observers
 
 ## Milestones
 
 ### Milestone 1
   1. Working game between two players with chat
 
+### Milestone 2
+  1. Support observers
+  2. Save games (.sgf)
+
 ### RELEASE 1.0
-  1. Full 9x9 game over webRTC, with score and declared winner.
+  1. Full game over webRTC, with score and declared winner.
   2. Multiple games, start new game, view in progress game.
   3. In-game chat, pause/resume forfeit games, time limits.
   4. Profiles, rankings, game history.

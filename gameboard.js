@@ -9,7 +9,6 @@ const STATUS_IN_PROGRESS = 2;
 const STATUS_FINISHED = 3;
 
 class GameBoard {
-
   constructor(options) {
     this.seq = sequence++;
     this._salt = this.make_salt();
@@ -42,7 +41,7 @@ class GameBoard {
     }
 
     if (this.black_secret && this.white_secret) {
-      this.status = "in_progress";
+      this.status = STATUS_IN_PROGRESS;
     }
 
   }
@@ -65,10 +64,6 @@ class GameBoard {
     }
 
     return "white";
-  }
-
-  is_ready() {
-    // Are we ready to start yet?
   }
 
   make_salt() {
@@ -107,6 +102,9 @@ class GameBoard {
 
     return;
   }
-}
+};
 
 exports.GameBoard = GameBoard;
+exports.STATUS_CREATED = STATUS_CREATED;
+exports.STATUS_IN_PROGRESS = STATUS_IN_PROGRESS;
+exports.STATUS_FINISHED = STATUS_FINISHED;

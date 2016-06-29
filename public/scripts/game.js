@@ -19,7 +19,9 @@ function makeMove(coord, plyr) {
   if (play.success) {
     node = jrecord.createNode(true);
     node.info.captures[plyr] += play.captures.length; // tally captures
-    node.setType(coord, plyr); // play stone
+    if (coord) { // not a pass
+      node.setType(coord, plyr); // play stone
+    }
     node.setType(play.captures, JGO.CLEAR); // clear opponent's stones
 
     if (lastMove) {
@@ -31,7 +33,10 @@ function makeMove(coord, plyr) {
       ko = null;
     }
 
-    node.setMark(coord, JGO.MARK.CIRCLE); // mark move
+    if (coord) { // not a pass
+      node.setMark(coord, JGO.MARK.CIRCLE); // mark move
+    }
+
     lastMove = coord;
 
     if (play.ko) {
@@ -88,6 +93,28 @@ jsetup.setOptions(
 });
 
 jsetup.create('board', function(canvas) {
+  var passButton = document.querySelector('button#passButton');
+
+  passButton.addEventListener('click', function(event) {
+    event.preventDefault();
+
+    if (turn != player) {
+      return; // Not this player's turn
+    }
+
+    clearHover();
+
+    var localPlay = makeMove(null, player);
+
+    if (localPlay.success) {
+      // When a local play succeeds, send it to the opponent
+      data = JSON.stringify({pass: true});
+      dataChannel.send(data);
+
+        addChatMessage("self", "pass");
+    }
+  })
+
   canvas.addListener('click', function(coord, ev) {
     if(ev.shiftKey) { // on shift make a mark
       if(jboard.getMark(coord) == JGO.MARK.NONE)

@@ -81,6 +81,7 @@ io = io.connect();
 var game_id = window.location.pathname.split("/").pop();
 var color_pref = window.location.hash || "#";
 color_pref = color_pref.slice(1);
+window.location.hash = '';
 
 trace("Requesting color " + color_pref)
 trace("Connecting to game " + game_id);
@@ -303,6 +304,13 @@ function onReceiveMessage(event) {
     var opp = (player == JGO.BLACK) ? JGO.WHITE : JGO.BLACK;
     clearHover();
     var play = makeMove(move, opp);
+  }
+  else if (message.pass) {
+    trace(' pass');
+    var opp = (player == JGO.BLACK) ? JGO.WHITE : JGO.BLACK;
+    clearHover();
+    var play = makeMove(null, opp);
+    addChatMessage("other", "pass");
   }
   else if (message.hover) {
     trace(' hover: (' + message.hover.i + ', ' + message.hover.j + ')');
