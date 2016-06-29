@@ -301,7 +301,14 @@ function onReceiveMessage(event) {
 
     var move = new JGO.Coordinate(message.move.i, message.move.j);
     var opp = (player == JGO.BLACK) ? JGO.WHITE : JGO.BLACK;
+    clearHover();
     var play = makeMove(move, opp);
+  }
+  else if (message.hover) {
+    trace(' hover: (' + message.hover.i + ', ' + message.hover.j + ')');
+    var hover = new JGO.Coordinate(message.hover.i, message.hover.j);
+    var opp = (player == JGO.BLACK) ? JGO.WHITE : JGO.BLACK;
+    showHover(hover, opp);
   }
 }
 

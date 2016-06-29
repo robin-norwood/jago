@@ -49,6 +49,39 @@ function makeMove(coord, plyr) {
   return play;
 }
 
+function showHover(coord, color) {
+  if (coord.i == -1 || coord.j == -1 || (coord.i == lastX && coord.j == lastY))
+    return; // either off the board or same spot as last time
+
+  clearHover();
+
+  lastX = coord.i;
+  lastY = coord.j;
+
+  // Show a "hover" stone if it's the player's turn
+  if (jboard.getType(coord) == JGO.CLEAR &&
+      jboard.getMark(coord) == JGO.MARK.NONE) {
+    jboard.setType(coord, color == JGO.WHITE ? JGO.DIM_WHITE : JGO.DIM_BLACK);
+    lastHover = true;
+
+    if (color == player) {
+      data = JSON.stringify({hover: { i: coord.i, j: coord.j }});
+      dataChannel.send(data);
+    }
+  }
+  else {
+    lastHover = false;
+  }
+
+}
+
+function clearHover() {
+  if(lastHover) { // clear previous hover if there was one
+    jboard.setType(new JGO.Coordinate(lastX, lastY), JGO.CLEAR);
+    lastHover = false;
+  }
+}
+
 jsetup.setOptions(
   {stars: {points:5},
    coordinates: {top:false, bottom:true, left:true, right:false}
@@ -70,10 +103,7 @@ jsetup.create('board', function(canvas) {
     }
     // clear hover away - it'll be replaced or it will be an illegal move
     // in any case so no need to worry about putting it back afterwards
-    if(lastHover) {
-      jboard.setType(new JGO.Coordinate(lastX, lastY), JGO.CLEAR);
-      lastHover = false;
-    }
+    clearHover();
 
     var localPlay = makeMove(coord, player);
 
@@ -85,35 +115,12 @@ jsetup.create('board', function(canvas) {
   });
 
   canvas.addListener('mousemove', function(coord, ev) {
-    if (coord.i == -1 || coord.j == -1 || (coord.i == lastX && coord.j == lastY))
-      return; // either off the board or same spot as last time
-
-    if(lastHover) { // clear previous hover if there was one
-      jboard.setType(new JGO.Coordinate(lastX, lastY), JGO.CLEAR);
-      lastHover = false;
-    }
-
-    lastX = coord.i;
-    lastY = coord.j;
-
-    // Show a "hover" stone if it's the player's turn
-    if (jboard.getType(coord) == JGO.CLEAR &&
-        jboard.getMark(coord) == JGO.MARK.NONE &&
-        turn == player) {
-      jboard.setType(coord, player == JGO.WHITE ? JGO.DIM_WHITE : JGO.DIM_BLACK);
-      lastHover = true;
-      // FIXME: Send hover to other player
-    }
-    else {
-      lastHover = false;
+    if (turn == player) {
+      showHover(coord, player);
     }
   });
 
   canvas.addListener('mouseout', function(ev) {
-    if (lastHover) {
-      jboard.setType(new JGO.Coordinate(lastX, lastY), JGO.CLEAR);
-      lastHover = false;
-    }
-
+    clearHover();
   });
 });

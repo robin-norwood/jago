@@ -37,6 +37,10 @@ Jago ("Yah-GO") is in early development, and is intended to become a complete Go
     * <del>Clean up UI a bit, select player</del>
     * <del>Transfer moves & enable/disable local board control</del>
     * <del>Handle invalid moves/cheating attempts</del>
+    * <del>Support multiple games</del>
+    * <del>Show other player's "hover" events</del>
+    * Show in-progress games
+    * Support observers
     * Heartbeat/notice disconnects
     * Handle reconnects
   * M1: Setup test framework
