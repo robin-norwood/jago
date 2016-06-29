@@ -4,6 +4,9 @@
 var sequence = 1;
 const crypto = require('crypto');
 const hash_algorithm = 'sha256';
+const STATUS_CREATED = 1;
+const STATUS_IN_PROGRESS = 2;
+const STATUS_FINISHED = 3;
 
 class GameBoard {
 
@@ -12,6 +15,7 @@ class GameBoard {
     this._salt = this.make_salt();
     this.black_secret = null;
     this.white_secret = null;
+    this.status = STATUS_CREATED;
   }
 
   join(player) { // Ugly function. :(
@@ -36,6 +40,11 @@ class GameBoard {
 
       return this.white_secret;
     }
+
+    if (this.black_secret && this.white_secret) {
+      this.status = "in_progress";
+    }
+
   }
 
   is_available(player) {
@@ -60,7 +69,6 @@ class GameBoard {
 
   is_ready() {
     // Are we ready to start yet?
-    return Boolean(this.black_secret && this.white_secret);
   }
 
   make_salt() {

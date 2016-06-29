@@ -36,7 +36,20 @@ var boards = [];
 // HTTP routes
 
 app.get('/', function(req, res) {
-	res.render('index.ejs');
+	var open_games = [];
+	var in_progress_games = [];
+
+	for (var i=0; i<boards.length; i++) {
+		if (boards[i].status == gb.STATUS_CREATED) {
+			open_games.push(boards[i]);
+		}
+		if (boards[i].status == gb.STATUS_IN_PROGRESS) {
+			in_progress_games.push(boards[i]);
+		}
+	}
+
+	res.render('index.ejs', { open_games: open_games,
+	 												  in_progress_games: in_progress_games });
 });
 
 app.post('/game', function(req, res) {
@@ -75,7 +88,7 @@ app.io.route('client_ready', function(req) {
 
 	console.log("Found board " + board.seq.toString());
 
-	if (board.is_ready()) {
+	if (board.status = gb.STATUS_IN_PROGRESS) {
 		// FIXME: Handle observers
 	}
 	else {

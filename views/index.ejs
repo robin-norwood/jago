@@ -12,6 +12,13 @@
 
 <!-- List of games -->
 
+      <h2>Open Games</h2>
+      <ul>
+        <% open_games.forEach(function(game) { %>
+        <li><a href="/game/<%= game.seq %>">Game #<%= game.seq %></a></li>
+        <% }); %>
+      </ul>
+
 <!-- End list of games -->
 
 <!-- New game form -->
