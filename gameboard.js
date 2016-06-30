@@ -20,6 +20,7 @@ class GameBoard {
   join(player) { // Ugly function. :(
     // Join as 'player', returns new player's secret key
     this._check_player(player);
+    var secret = null;
 
     if (player == "black") {
       if (this.black_secret) {
@@ -28,7 +29,7 @@ class GameBoard {
 
       this.black_secret = this.make_secret("black");
 
-      return this.black_secret;
+      secret = this.black_secret;
     }
     else if (player == "white") {
       if (this.white_secret) {
@@ -36,14 +37,14 @@ class GameBoard {
       }
 
       this.white_secret = this.make_secret("white");
-
-      return this.white_secret;
+      secret = this.white_secret;
     }
 
     if (this.black_secret && this.white_secret) {
       this.status = STATUS_IN_PROGRESS;
     }
 
+    return secret;
   }
 
   is_available(player) {
