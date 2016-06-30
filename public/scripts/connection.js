@@ -37,6 +37,7 @@ var dataChannel;
 var dataChannelSend = document.querySelector('input#dataChannelSend');
 var dataChannelReceive = document.querySelector('#dataChannelReceive');
 var sendButton = document.querySelector('button#sendButton');
+var passButton = document.querySelector('button#passButton');
 var statusArea = document.querySelector('#statusArea');
 var players = [null, "black", "white"];
 var player = null;
@@ -131,6 +132,7 @@ io.on('signaling_message', function(data) {
       trace("I am playing white");
       player = JGO.WHITE;
     }
+    updatePassbutton();
   }
 });
 

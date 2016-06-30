@@ -40,7 +40,8 @@ Jago ("Yah-GO") is in early development, and is intended to become a complete Go
     * <del>Support multiple games</del>
     * <del>Show other player's "hover" events</del>
     * <del>Show open games</del>
-    * Handle "pass" moves
+    * <del>Handle "pass" moves</del>
+    * Handle visiting in-progress games
     * Handle victory
     * Handle surrender
   * M1: Setup test framework

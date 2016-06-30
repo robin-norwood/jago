@@ -13,6 +13,14 @@ var lastHover = false, lastX = -1, lastY = -1; // hover helper vars
 // FIXME: Implement handicap
 //jboard.setType(JGO.util.getHandicapCoordinates(jboard.width, 2), JGO.BLACK);
 
+function updatePassbutton() {
+  if (turn == player) {
+    passButton.disabled = false;
+  }
+  else {
+    passButton.disabled = true;
+  }
+}
 function makeMove(coord, plyr) {
   var play = jboard.playMove(coord, plyr, ko);
 
@@ -45,6 +53,8 @@ function makeMove(coord, plyr) {
     }
 
     turn = (plyr == JGO.BLACK) ? JGO.WHITE : JGO.BLACK;
+
+    updatePassbutton();
     updateCaptures(node);
   }
   else { // Either a bug or someone is doing something naughty
@@ -93,7 +103,6 @@ jsetup.setOptions(
 });
 
 jsetup.create('board', function(canvas) {
-  var passButton = document.querySelector('button#passButton');
 
   passButton.addEventListener('click', function(event) {
     event.preventDefault();
